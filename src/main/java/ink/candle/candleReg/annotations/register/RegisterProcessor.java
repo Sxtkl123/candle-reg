@@ -2,6 +2,7 @@ package ink.candle.candleReg.annotations.register;
 
 import ink.candle.candleReg.CandleReg;
 import ink.candle.candleReg.annotations.register.enums.TypeEnum;
+import ink.candle.candleReg.utils.StringUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -12,6 +13,7 @@ import net.minecraftforge.fml.loading.moddiscovery.ModAnnotation;
 import net.minecraftforge.forgespi.language.ModFileScanData;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegisterEvent;
+import org.apache.commons.lang3.ObjectUtils;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.InvocationTargetException;
@@ -60,6 +62,9 @@ public class RegisterProcessor {
 
             try {
                 T object = clazz.getDeclaredConstructor().newInstance();
+                if (ObjectUtils.isEmpty(name)) {
+                    name = StringUtil.toSnakeCase(clazz.getSimpleName());
+                }
                 ResourceLocation location = new ResourceLocation(modId, name);
                 helper.register(location, object);
                 map.put(location, object);

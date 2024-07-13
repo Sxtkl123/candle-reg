@@ -8,7 +8,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 
-@Register(value = CandleReg.MODID, name = "example_block", type = TypeEnum.BLOCK)
+@Register(value = CandleReg.MODID, type = TypeEnum.BLOCK)
 @RegisterBlockItem
 public class ExampleBlock extends Block {
 
