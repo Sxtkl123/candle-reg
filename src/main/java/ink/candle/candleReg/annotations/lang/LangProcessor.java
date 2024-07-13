@@ -24,7 +24,7 @@ public class LangProcessor {
     private static final Type REGISTER = Type.getType(Register.class);
     private static final Type LANG = Type.getType(Lang.class);
 
-    private static final Map<String, CandleLanguageProvider> providers = new HashMap<>();
+    private static final Map<String, Map<String, CandleLanguageProvider>> providers = new HashMap<>();
 
     @SubscribeEvent
     @SuppressWarnings("unchecked")
@@ -51,35 +51,29 @@ public class LangProcessor {
             String modId = (String) registerParams.get("value");
             String id = (String) registerParams.get("name");
             ModAnnotation.EnumHolder type = (ModAnnotation.EnumHolder) registerParams.get("type");
+
             if (!providers.containsKey(modId)) {
-                providers.put(modId, new CandleLanguageProvider(output, modId));
+                providers.put(modId, new HashMap<>());
             }
+            Map<String, CandleLanguageProvider> langMap = providers.get(modId);
+            for (int i = 0; i < name.size(); i++) {
+                if (!langMap.containsKey(locale.get(i))) {
+                    langMap.put(locale.get(i), new CandleLanguageProvider(output, modId, locale.get(i)));
+                }
 
-            CandleLanguageProvider provider = providers.get(modId);
-            if (TypeEnum.ITEM.toString().equals(type.getValue())) {
-                providerAdd(provider, modId, id, name, locale, TypeEnum.ITEM);
-            } else if (TypeEnum.BLOCK.toString().equals(type.getValue())) {
-                providerAdd(provider, modId, id, name, locale, TypeEnum.BLOCK);
+                CandleLanguageProvider provider = langMap.get(locale.get(i));
+                if (TypeEnum.ITEM.toString().equals(type.getValue())) {
+                    provider.add(RegisterProcessor.ITEMS.get(new ResourceLocation(modId, id)), name.get(i));
+                } else if (TypeEnum.BLOCK.toString().equals(type.getValue())) {
+                    provider.add(RegisterProcessor.BLOCKS.get(new ResourceLocation(modId, id)), name.get(i));
+                }
             }
         }
 
-        for (CandleLanguageProvider provider : providers.values()) {
-            gen.addProvider(event.includeClient(), provider);
-        }
-
-    }
-
-    private static void providerAdd(CandleLanguageProvider provider, String modId, String id, List<String> name, List<String> locale, TypeEnum typeEnum) {
-        for (int i = 0; i < name.size(); i++) {
-            switch (typeEnum) {
-                case ITEM:
-                    provider.add(RegisterProcessor.ITEMS.get(new ResourceLocation(modId, id)), locale.get(i), name.get(i));
-                    break;
-                case BLOCK:
-                    provider.add(RegisterProcessor.BLOCKS.get(new ResourceLocation(modId, id)), locale.get(i), name.get(i));
-                    break;
+        for (Map<String, CandleLanguageProvider> langMap : providers.values()) {
+            for (CandleLanguageProvider provider : langMap.values()) {
+                gen.addProvider(event.includeClient(), provider);
             }
         }
     }
-
 }
