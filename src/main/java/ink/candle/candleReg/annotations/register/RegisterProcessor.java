@@ -60,6 +60,7 @@ public class RegisterProcessor {
 
             if (ObjectUtils.isEmpty(name)) {
                 name = StringUtil.toSnakeCase(clazz.getSimpleName());
+                params.put("name", name);
             }
             ResourceLocation location = new ResourceLocation(modId, name);
             helper.register(location, instance);

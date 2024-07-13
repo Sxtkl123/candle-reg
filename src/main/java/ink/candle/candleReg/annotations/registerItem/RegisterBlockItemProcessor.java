@@ -4,7 +4,6 @@ import ink.candle.candleReg.annotations.register.Register;
 import ink.candle.candleReg.annotations.register.RegisterProcessor;
 import ink.candle.candleReg.annotations.register.enums.TypeEnum;
 import ink.candle.candleReg.utils.ProcessorUtil;
-import ink.candle.candleReg.utils.StringUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -15,7 +14,6 @@ import net.minecraftforge.fml.loading.moddiscovery.ModAnnotation;
 import net.minecraftforge.forgespi.language.ModFileScanData;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegisterEvent;
-import org.apache.commons.lang3.ObjectUtils;
 import org.objectweb.asm.Type;
 
 import java.util.List;
@@ -37,17 +35,14 @@ public class RegisterBlockItemProcessor {
                 Map<String, Object> params = ProcessorUtil.readRegisterParam(annotation.clazz(), registerAnnotations);
                 if (params == null) continue;
 
-                String modId = (String) params.get("value");
                 String name = (String) params.get("name");
+                String modId = (String) params.get("value");
                 ModAnnotation.EnumHolder type = (ModAnnotation.EnumHolder) params.get("type");
                 if (!TypeEnum.BLOCK.toString().equals(type.getValue())) continue;
 
                 Class<?> clazz = ProcessorUtil.readClass(annotation.clazz());
                 if (clazz == null) continue;
 
-                if (ObjectUtils.isEmpty(name)) {
-                    name = StringUtil.toSnakeCase(clazz.getSimpleName());
-                }
                 helper.register(new ResourceLocation(modId, name), new BlockItem(RegisterProcessor.BLOCKS.get(new ResourceLocation(modId, name)), new Item.Properties()));
             }
         });
