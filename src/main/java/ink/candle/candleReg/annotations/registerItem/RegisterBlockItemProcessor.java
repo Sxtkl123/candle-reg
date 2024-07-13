@@ -1,6 +1,5 @@
 package ink.candle.candleReg.annotations.registerItem;
 
-import ink.candle.candleReg.CandleReg;
 import ink.candle.candleReg.annotations.register.Register;
 import ink.candle.candleReg.annotations.register.RegisterProcessor;
 import ink.candle.candleReg.annotations.register.enums.TypeEnum;
@@ -11,7 +10,6 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.loading.moddiscovery.ModAnnotation;
 import net.minecraftforge.forgespi.language.ModFileScanData;
@@ -20,7 +18,6 @@ import net.minecraftforge.registries.RegisterEvent;
 import org.apache.commons.lang3.ObjectUtils;
 import org.objectweb.asm.Type;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 

@@ -1,6 +1,5 @@
 package ink.candle.candleReg.annotations.register;
 
-import ink.candle.candleReg.CandleReg;
 import ink.candle.candleReg.annotations.register.enums.TypeEnum;
 import ink.candle.candleReg.utils.ProcessorUtil;
 import ink.candle.candleReg.utils.StringUtil;
@@ -17,7 +16,6 @@ import net.minecraftforge.registries.RegisterEvent;
 import org.apache.commons.lang3.ObjectUtils;
 import org.objectweb.asm.Type;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;

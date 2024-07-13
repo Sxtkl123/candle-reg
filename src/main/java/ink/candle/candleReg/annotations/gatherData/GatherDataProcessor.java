@@ -1,26 +1,20 @@
 package ink.candle.candleReg.annotations.gatherData;
 
-import ink.candle.candleReg.CandleReg;
 import ink.candle.candleReg.annotations.register.Register;
-import ink.candle.candleReg.annotations.register.enums.TypeEnum;
-import ink.candle.candleReg.interfaces.ICandleLanguage;
-import ink.candle.candleReg.providers.CandleLanguageProvider;
-import ink.candle.candleReg.utils.StringUtil;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
-import net.minecraft.world.item.Item;
 import net.minecraftforge.common.data.LanguageProvider;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.loading.moddiscovery.ModAnnotation;
 import net.minecraftforge.forgespi.language.ModFileScanData;
-import org.apache.commons.lang3.ObjectUtils;
 import org.objectweb.asm.Type;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class GatherDataProcessor {
