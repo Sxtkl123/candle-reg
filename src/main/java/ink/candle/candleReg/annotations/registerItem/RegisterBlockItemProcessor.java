@@ -4,6 +4,7 @@ import ink.candle.candleReg.CandleReg;
 import ink.candle.candleReg.annotations.register.Register;
 import ink.candle.candleReg.annotations.register.RegisterProcessor;
 import ink.candle.candleReg.annotations.register.enums.TypeEnum;
+import ink.candle.candleReg.utils.ProcessorUtil;
 import ink.candle.candleReg.utils.StringUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
@@ -31,51 +32,26 @@ public class RegisterBlockItemProcessor {
 
     @SubscribeEvent(priority = EventPriority.LOW)
     public static void registerEvent(RegisterEvent event) {
+        List<ModFileScanData.AnnotationData> annotations = ProcessorUtil.readAnnotation(REGISTER_BLOCK_ITEM);
+        List<ModFileScanData.AnnotationData> registerAnnotations = ProcessorUtil.readAnnotation(REGISTER);
+
         event.register(ForgeRegistries.Keys.ITEMS, helper -> {
-            List<ModFileScanData.AnnotationData> annotations = ModList.get().getAllScanData().stream()
-                    .map(ModFileScanData::getAnnotations)
-                    .flatMap(Collection::stream)
-                    .filter(a -> REGISTER_BLOCK_ITEM.equals(a.annotationType()))
-                    .toList();
-            List<ModFileScanData.AnnotationData> registerAnnotations = ModList.get().getAllScanData().stream()
-                    .map(ModFileScanData::getAnnotations)
-                    .flatMap(Collection::stream)
-                    .filter(a -> REGISTER.equals(a.annotationType()))
-                    .toList();
             for (ModFileScanData.AnnotationData annotation : annotations) {
-                Class<?> clazz;
-                try {
-                    clazz = Class.forName(annotation.clazz().getClassName());
-                } catch (ClassNotFoundException e) {
-                    CandleReg.LOGGER.error("Failed to load register annotation: {}", annotation.clazz(), e);
-                    continue;
-                }
-                String name = null;
-                String modId = null;
+                Class<?> clazz = ProcessorUtil.readClass(annotation.clazz());
+                if (clazz == null) continue;
 
-                for (ModFileScanData.AnnotationData register : registerAnnotations) {
-                    if (register.clazz().equals(annotation.clazz())) {
-                        Map<String, Object> params = register.annotationData();
-                        modId = (String) params.get("value");
-                        name = (String) params.get("name");
-                        if (ObjectUtils.isEmpty(name)) {
-                            name = StringUtil.toSnakeCase(clazz.getSimpleName());
-                        }
-                        ModAnnotation.EnumHolder type = (ModAnnotation.EnumHolder) params.get("type");
-                        if (!TypeEnum.BLOCK.toString().equals(type.getValue())) {
-                            break;
-                        }
-                    }
-                }
+                Map<String, Object> params = ProcessorUtil.readRegisterParam(annotation.clazz(), registerAnnotations);
+                if (params == null) continue;
 
-                if (name == null || modId == null) {
-                    continue;
+                String modId = (String) params.get("value");
+                String name = (String) params.get("name");
+                ModAnnotation.EnumHolder type = (ModAnnotation.EnumHolder) params.get("type");
+                if (!TypeEnum.BLOCK.toString().equals(type.getValue())) continue;
+
+                if (ObjectUtils.isEmpty(name)) {
+                    name = StringUtil.toSnakeCase(clazz.getSimpleName());
                 }
-                try {
-                    helper.register(new ResourceLocation(modId, name), new BlockItem(RegisterProcessor.BLOCKS.get(new ResourceLocation(modId, name)), new Item.Properties()));
-                } catch (Exception e) {
-                    CandleReg.LOGGER.error("Failed to instance class: {}", clazz.getName(), e);
-                }
+                helper.register(new ResourceLocation(modId, name), new BlockItem(RegisterProcessor.BLOCKS.get(new ResourceLocation(modId, name)), new Item.Properties()));
             }
         });
     }

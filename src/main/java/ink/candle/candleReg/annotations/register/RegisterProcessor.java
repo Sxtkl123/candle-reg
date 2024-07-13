@@ -2,6 +2,7 @@ package ink.candle.candleReg.annotations.register;
 
 import ink.candle.candleReg.CandleReg;
 import ink.candle.candleReg.annotations.register.enums.TypeEnum;
+import ink.candle.candleReg.utils.ProcessorUtil;
 import ink.candle.candleReg.utils.StringUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -33,19 +34,23 @@ public class RegisterProcessor {
 
     @SubscribeEvent
     public static void registerEvent(RegisterEvent event) {
-        event.register(ForgeRegistries.Keys.BLOCKS, helper -> register(TypeEnum.BLOCK, helper, BLOCKS));
-        event.register(ForgeRegistries.Keys.ITEMS, helper -> register(TypeEnum.ITEM, helper, ITEMS));
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T> void register(TypeEnum typeEnum, RegisterEvent.RegisterHelper<T> helper, Map<ResourceLocation, T> map) {
         List<ModFileScanData.AnnotationData> annotations = ModList.get().getAllScanData().stream()
                 .map(ModFileScanData::getAnnotations)
                 .flatMap(Collection::stream)
                 .filter(a -> REGISTER.equals(a.annotationType()))
                 .toList();
+        event.register(ForgeRegistries.Keys.BLOCKS, helper -> register(TypeEnum.BLOCK, helper, BLOCKS, annotations));
+        event.register(ForgeRegistries.Keys.ITEMS, helper -> register(TypeEnum.ITEM, helper, ITEMS, annotations));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> void register(TypeEnum typeEnum, RegisterEvent.RegisterHelper<T> helper, Map<ResourceLocation, T> map, List<ModFileScanData.AnnotationData> annotations) {
         for (ModFileScanData.AnnotationData annotation : annotations) {
-            Class<T> clazz;
+            Class<?> clazz = ProcessorUtil.readClass(annotation.clazz());
+            if (clazz == null) {
+                continue;
+            }
+
             Map<String, Object> params = annotation.annotationData();
             String modId = (String) params.get("value");
             String name = (String) params.get("name");
@@ -53,25 +58,16 @@ public class RegisterProcessor {
             if (!typeEnum.toString().equals(type.getValue())) {
                 continue;
             }
-            try {
-                clazz = (Class<T>) Class.forName(annotation.clazz().getClassName());
-            } catch (ClassNotFoundException e) {
-                CandleReg.LOGGER.error("Failed to load register annotation: {}", annotation.clazz(), e);
+            T instance = (T) ProcessorUtil.instance(clazz);
+            if (instance == null) {
                 continue;
             }
-
-            try {
-                T object = clazz.getDeclaredConstructor().newInstance();
-                if (ObjectUtils.isEmpty(name)) {
-                    name = StringUtil.toSnakeCase(clazz.getSimpleName());
-                }
-                ResourceLocation location = new ResourceLocation(modId, name);
-                helper.register(location, object);
-                map.put(location, object);
-            } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |
-                     IllegalAccessException e) {
-                CandleReg.LOGGER.error("Failed to instance class: {}", clazz.getName(), e);
+            if (ObjectUtils.isEmpty(name)) {
+                name = StringUtil.toSnakeCase(clazz.getSimpleName());
             }
+            ResourceLocation location = new ResourceLocation(modId, name);
+            helper.register(location, instance);
+            map.put(location, instance);
         }
     }
 
