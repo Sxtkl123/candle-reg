@@ -2,7 +2,7 @@ package ink.candle.candleReg.annotations.lang;
 
 public @interface Lang {
 
-    String locale();
+    String[] locale();
 
-    String name();
+    String[] name();
 }

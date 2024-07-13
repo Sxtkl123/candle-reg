@@ -1,5 +1,6 @@
 package ink.candle.candleReg.annotations.lang;
 
+import ink.candle.candleReg.CandleReg;
 import ink.candle.candleReg.annotations.register.Register;
 import ink.candle.candleReg.annotations.register.RegisterProcessor;
 import ink.candle.candleReg.annotations.register.enums.TypeEnum;
@@ -26,6 +27,7 @@ public class LangProcessor {
     private static final Map<String, CandleLanguageProvider> providers = new HashMap<>();
 
     @SubscribeEvent
+    @SuppressWarnings("unchecked")
     public static void gatherLang(GatherDataEvent event) {
         DataGenerator gen = event.getGenerator();
         PackOutput output = gen.getPackOutput();
@@ -35,8 +37,13 @@ public class LangProcessor {
 
         for (ModFileScanData.AnnotationData annotation : annotations) {
             Map<String, Object> params = annotation.annotationData();
-            String name = (String) params.get("name");
-            String locale = (String) params.get("locale");
+            List<String> name = (List<String>) params.get("name");
+            List<String> locale = (List<String>) params.get("locale");
+
+            if (name.size() != locale.size()) {
+                CandleReg.LOGGER.error("Length of name and location is not same in class: {}", annotation.clazz().getClassName());
+                continue;
+            }
 
             Map<String, Object> registerParams = ProcessorUtil.readRegisterParam(annotation.clazz(), registerAnnotations);
             if (registerParams == null) continue;
@@ -50,7 +57,9 @@ public class LangProcessor {
 
             CandleLanguageProvider provider = providers.get(modId);
             if (TypeEnum.ITEM.toString().equals(type.getValue())) {
-                provider.add(RegisterProcessor.ITEMS.get(new ResourceLocation(modId, id)), locale, name);
+                providerAdd(provider, modId, id, name, locale, TypeEnum.ITEM);
+            } else if (TypeEnum.BLOCK.toString().equals(type.getValue())) {
+                providerAdd(provider, modId, id, name, locale, TypeEnum.BLOCK);
             }
         }
 
@@ -58,6 +67,19 @@ public class LangProcessor {
             gen.addProvider(event.includeClient(), provider);
         }
 
+    }
+
+    private static void providerAdd(CandleLanguageProvider provider, String modId, String id, List<String> name, List<String> locale, TypeEnum typeEnum) {
+        for (int i = 0; i < name.size(); i++) {
+            switch (typeEnum) {
+                case ITEM:
+                    provider.add(RegisterProcessor.ITEMS.get(new ResourceLocation(modId, id)), locale.get(i), name.get(i));
+                    break;
+                case BLOCK:
+                    provider.add(RegisterProcessor.BLOCKS.get(new ResourceLocation(modId, id)), locale.get(i), name.get(i));
+                    break;
+            }
+        }
     }
 
 }

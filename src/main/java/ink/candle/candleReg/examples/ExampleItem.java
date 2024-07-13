@@ -8,7 +8,7 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 
 @Register(value = CandleReg.MODID, type = TypeEnum.ITEM)
-@Lang(locale = "en_us", name = "Example Item")
+@Lang(locale = {"en_us", "zh_cn"}, name = {"Example Item", "示例物品"})
 public class ExampleItem extends Item {
 
     public ExampleItem() {
