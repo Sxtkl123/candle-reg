@@ -5,7 +5,4 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.TYPE})
 public @interface RegisterBlockItem {
-    String value() default "";
-
-    String name() default "";
 }

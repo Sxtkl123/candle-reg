@@ -1,6 +1,7 @@
 package ink.candle.candleReg.examples;
 
 import ink.candle.candleReg.CandleReg;
+import ink.candle.candleReg.annotations.lang.Lang;
 import ink.candle.candleReg.annotations.register.Register;
 import ink.candle.candleReg.annotations.register.enums.TypeEnum;
 import ink.candle.candleReg.annotations.registerItem.RegisterBlockItem;
@@ -9,6 +10,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 
 @Register(value = CandleReg.MODID, type = TypeEnum.BLOCK)
+@Lang(locale = "zh_cn", name = "示例方块")
 @RegisterBlockItem
 public class ExampleBlock extends Block {
 

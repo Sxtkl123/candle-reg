@@ -43,7 +43,9 @@ public class RegisterBlockItemProcessor {
                 Class<?> clazz = ProcessorUtil.readClass(annotation.clazz());
                 if (clazz == null) continue;
 
-                helper.register(new ResourceLocation(modId, name), new BlockItem(RegisterProcessor.BLOCKS.get(new ResourceLocation(modId, name)), new Item.Properties()));
+                BlockItem item = new BlockItem(RegisterProcessor.BLOCKS.get(new ResourceLocation(modId, name)), new Item.Properties());
+                RegisterProcessor.ITEMS.put(new ResourceLocation(modId, name), item);
+                helper.register(new ResourceLocation(modId, name), item);
             }
         });
     }
