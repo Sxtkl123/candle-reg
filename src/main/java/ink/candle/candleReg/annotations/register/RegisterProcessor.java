@@ -46,22 +46,20 @@ public class RegisterProcessor {
     @SuppressWarnings("unchecked")
     private static <T> void register(TypeEnum typeEnum, RegisterEvent.RegisterHelper<T> helper, Map<ResourceLocation, T> map, List<ModFileScanData.AnnotationData> annotations) {
         for (ModFileScanData.AnnotationData annotation : annotations) {
+            Map<String, Object> params = annotation.annotationData();
+            String modId = (String) params.get("value");
+            String name = (String) params.get("name");
+            ModAnnotation.EnumHolder type = (ModAnnotation.EnumHolder) params.get("type");
+            if (!typeEnum.toString().equals(type.getValue())) continue;
+
             Class<?> clazz = ProcessorUtil.readClass(annotation.clazz());
             if (clazz == null) {
                 continue;
             }
 
-            Map<String, Object> params = annotation.annotationData();
-            String modId = (String) params.get("value");
-            String name = (String) params.get("name");
-            ModAnnotation.EnumHolder type = (ModAnnotation.EnumHolder) params.get("type");
-            if (!typeEnum.toString().equals(type.getValue())) {
-                continue;
-            }
             T instance = (T) ProcessorUtil.instance(clazz);
-            if (instance == null) {
-                continue;
-            }
+            if (instance == null) continue;
+
             if (ObjectUtils.isEmpty(name)) {
                 name = StringUtil.toSnakeCase(clazz.getSimpleName());
             }

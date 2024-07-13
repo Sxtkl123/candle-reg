@@ -37,9 +37,6 @@ public class RegisterBlockItemProcessor {
 
         event.register(ForgeRegistries.Keys.ITEMS, helper -> {
             for (ModFileScanData.AnnotationData annotation : annotations) {
-                Class<?> clazz = ProcessorUtil.readClass(annotation.clazz());
-                if (clazz == null) continue;
-
                 Map<String, Object> params = ProcessorUtil.readRegisterParam(annotation.clazz(), registerAnnotations);
                 if (params == null) continue;
 
@@ -47,6 +44,9 @@ public class RegisterBlockItemProcessor {
                 String name = (String) params.get("name");
                 ModAnnotation.EnumHolder type = (ModAnnotation.EnumHolder) params.get("type");
                 if (!TypeEnum.BLOCK.toString().equals(type.getValue())) continue;
+
+                Class<?> clazz = ProcessorUtil.readClass(annotation.clazz());
+                if (clazz == null) continue;
 
                 if (ObjectUtils.isEmpty(name)) {
                     name = StringUtil.toSnakeCase(clazz.getSimpleName());
